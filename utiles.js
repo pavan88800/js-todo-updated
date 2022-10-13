@@ -12,3 +12,16 @@ export function suggestionAPI (suggestion) {
     }, 500)
   })
 }
+// export function throttling (fn, delay) {
+//   let isExecutable = true
+//   return function () {
+//     let args = arguments
+//     if (isExecutable) {
+//       fn.apply(this, args)
+//       isExecutable = false
+//       setTimeout(() => {
+//         isExecutable = true
+//       }, delay)
+//     }
+//   }
+// }
