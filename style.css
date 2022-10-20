@@ -1,0 +1,18 @@
+#container {
+  position: relative;
+  padding-top: 20px;
+}
+
+#containerCompleted {
+  padding-top: 20px;
+  position: absolute;
+  top: 8%;
+  left: 35%;
+}
+
+#h1 {
+  position: absolute;
+  top: 2%;
+  left: 35%;
+  text-align: center;
+}
