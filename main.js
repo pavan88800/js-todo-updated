@@ -1,7 +1,7 @@
 let input = document.getElementById('todo')
 let button = document.getElementById('AddTodo')
 let container = document.getElementById('container')
-input.focus()
+;(() => input.focus())()
 let Todo
 function getStore () {
   if (localStorage.getItem('todo') !== null) {
@@ -44,6 +44,7 @@ function renderTodo (e) {
   })
 }
 function TodoListUI (el) {
+  // container.innerHTML = ''
   const p = document.createElement('p')
   p.innerHTML = el.text
   const span = document.createElement('span')
@@ -51,6 +52,7 @@ function TodoListUI (el) {
   span.className = 'deleteSpan'
   span.setAttribute('data-id', el.id)
   span.style = 'margin-left:50px; cursor:pointer'
+  span.onclick = e => removeTodo(e)
   const btn = document.createElement('button')
   btn.innerHTML = 'Edit'
   btn.style = 'margin-left:50px; cursor:pointer'
@@ -68,7 +70,6 @@ function TodoListUI (el) {
   container.appendChild(p)
 }
 
-container.addEventListener('click', e => removeTodo(e))
 document
   .getElementById('containerCompleted')
   .addEventListener('click', e => removeTodo(e))
@@ -85,6 +86,7 @@ function removeTodo (e) {
 
 //mutating state
 function isCompleted (e) {
+  container.innerHTML = ''
   let { id } = e.target.dataset
   if (e.target.id === 'completed') {
     Todo = Todo.map(el => {
@@ -126,9 +128,9 @@ function CompletedUIList (el) {
   const btn = document.createElement('button')
   btn.innerHTML = 'Edit'
   btn.style = 'margin-left:50px; cursor:pointer'
+  btn.onclick = e => update(e)
   btn.setAttribute('data-id', el.id)
   btn.className = 'edit-todo'
-  btn.onclick = e => update(e)
   const btnComplete = document.createElement('button')
   btnComplete.innerHTML = 'completed'
   btnComplete.id = 'completed'
@@ -141,28 +143,37 @@ function CompletedUIList (el) {
 }
 
 //update Todo
+let edit = document.getElementById('editTodoValue')
+let currentUser = {}
 function update (e) {
+  console.log(e.target)
+  document.getElementById('editContainer').style = 'display:block'
   let { id } = e.target.dataset
-
   let ele = Todo.find(el => el.id.toString() === id)
+  edit.value = ele.text
+  currentUser = ele
+}
 
-  if (ele.text) {
-    input.value = ele.text
-  }
-
-  if (e.target.classList.contains('edit-todo')) {
-    Todo = Todo.filter(el => el.id !== ele.id)
-    localStorage.setItem('todo', JSON.stringify(Todo))
-    e.target.closest('p').remove()
-  }
-  for (let update of Todo) {
-    console.log(update.id === ele.id)
-    if (update.id === ele.id) {
-      update.text = input.value
-    }
+function EditTodo () {
+  if (event.target.id === 'EditButton') {
+    console.log(edit.value)
+    Todo = Todo.map(el => {
+      if (el.id === currentUser.id) {
+        return {
+          ...el,
+          text: edit.value
+        }
+      }
+      return el
+    })
   }
   localStorage.setItem('todo', JSON.stringify(Todo))
+  document.getElementById('editContainer').style = 'display:none'
+  window.location.reload()
 }
+document
+  .getElementById('EditButton')
+  .addEventListener('click', () => EditTodo())
 
 let search = document.querySelector('#search')
 
