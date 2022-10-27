@@ -126,41 +126,6 @@ function isCompleted (e) {
 }
 
 
-//   let newTodo = Todo.filter(el => el.isDone !== false)
-//   newTodo.forEach(el => {
-//     if (el.isDone !== false) {
-//       CompletedUIList(el)
-//     }
-//   })
-//   renderTodo()
-// }
-
-//Completed UI LIST
-// function CompletedUIList (el) {
-//   let ls = document.getElementById('containerCompleted')
-//   const p = document.createElement('p')
-//   p.innerHTML = el.text
-//   const span = document.createElement('span')
-//   span.innerHTML = 'X'
-//   span.className = 'deleteSpan'
-//   span.setAttribute('data-id', el.id)
-//   span.style = 'margin-left:50px; cursor:pointer'
-//   const btn = document.createElement('button')
-//   btn.innerHTML = 'Edit'
-//   btn.style = 'margin-left:50px; cursor:pointer'
-//   btn.onclick = e => update(e)
-//   btn.setAttribute('data-id', el.id)
-//   btn.className = 'edit-todo'
-//   const btnComplete = document.createElement('button')
-//   btnComplete.innerHTML = 'completed'
-//   btnComplete.id = 'completed'
-//   btnComplete.setAttribute('data-id', el.id)
-//   btnComplete.onclick = e => isCompleted(e)
-//   p.appendChild(span)
-//   p.appendChild(btn)
-//   p.appendChild(btnComplete)
-//   ls.appendChild(p)
-// }
 
 //update Todo
 let edit = document.getElementById('editTodoValue')
