@@ -6,25 +6,25 @@ let ls = document.getElementById("containerCompleted");
 
 let Todo;
 
-const storageKey = 'todo';
+const storageKey = "todo";
 
-const getTodo = ()=>{
-  console.log(localStorage.getItem(storageKey))
-return JSON.parse(localStorage.getItem(storageKey)) || []
-}
+const getTodo = () => {
+  console.log(localStorage.getItem(storageKey));
+  return JSON.parse(localStorage.getItem(storageKey)) || [];
+};
 
-const setTodo = (arr)=>{
-  localStorage.setItem(storageKey, JSON.stringify(arr))
-}
-if (document.readyState === "complete"
-     || document.readyState === "loaded"
-     || document.readyState === "interactive") {
-     renderAllTodo()
-}else{
+const setTodo = (arr) => {
+  localStorage.setItem(storageKey, JSON.stringify(arr));
+};
+if (
+  document.readyState === "complete" ||
+  document.readyState === "loaded" ||
+  document.readyState === "interactive"
+) {
+  renderAllTodo();
+} else {
   document.addEventListener("DOMContentLoaded", renderAllTodo);
 }
-
-
 
 //Adding Todo
 function AddTodo(e) {
@@ -60,29 +60,29 @@ function renderTodo(obj) {
 function TodoListUI(el) {
   let fragement = document.createDocumentFragment();
   const p = document.createElement("p");
-  p.id =  'todo_'+el.id
+  p.id = "todo_" + el.id;
   p.innerHTML = el.text;
-    const span = document.createElement("span");
-    span.innerHTML = "X";
-    span.className = "deleteSpan";
-    span.setAttribute("data-id", el.id);
-    span.style = "margin-left:50px; cursor:pointer";
-    span.onclick = (e) => removeTodo(e);
-    const btn = document.createElement("button");
-    btn.innerHTML = "Edit";
-    btn.style = "margin-left:50px; cursor:pointer";
-    btn.setAttribute("data-id", el.id);
-    btn.className = "edit-todo";
-    btn.onclick = (e) => update(e);
-    const btnComplete = document.createElement("button");
-    btnComplete.innerHTML = "completed";
-    btnComplete.id = "completed";
-    btnComplete.setAttribute("data-id", el.id);
-    btnComplete.onclick = (e) => isCompleted(e);
-    p.appendChild(span);
-    p.appendChild(btn);
-    p.appendChild(btnComplete);
-    fragement.appendChild(p);
+  const span = document.createElement("span");
+  span.innerHTML = "X";
+  span.className = "deleteSpan";
+  span.setAttribute("data-id", el.id);
+  span.style = "margin-left:50px; cursor:pointer";
+  span.onclick = (e) => removeTodo(e);
+  const btn = document.createElement("button");
+  btn.innerHTML = "Edit";
+  btn.style = "margin-left:50px; cursor:pointer";
+  btn.setAttribute("data-id", el.id);
+  btn.className = "edit-todo";
+  btn.onclick = (e) => update(e);
+  const btnComplete = document.createElement("button");
+  btnComplete.innerHTML = "completed";
+  btnComplete.id = "completed";
+  btnComplete.setAttribute("data-id", el.id);
+  btnComplete.onclick = (e) => isCompleted(e);
+  p.appendChild(span);
+  p.appendChild(btn);
+  p.appendChild(btnComplete);
+  fragement.appendChild(p);
   if (el.isDone !== true) {
     container.appendChild(fragement);
   } else {
@@ -98,7 +98,7 @@ function removeTodo(e) {
   let { id } = e.target.dataset;
   if (e.target.classList.contains("deleteSpan")) {
     const todos = getTodo().filter((el) => el.id.toString() !== id);
-    setTodo(todos)
+    setTodo(todos);
     e.target.closest("p").remove();
   }
 }
@@ -116,8 +116,8 @@ function isCompleted(e) {
       }
       return el;
     });
-    setTodo(todos)
-    reBucketTodos()
+    setTodo(todos);
+    reBucketTodos();
   }
 }
 
@@ -128,14 +128,14 @@ let currentUser = {};
 function update(e) {
   document.getElementById("editContainer").style = "display:block";
   let { id } = e.target.dataset;
-  let ele = Todo.find((el) => el.id.toString() === id);
+  let ele = getTodo().find((el) => el.id.toString() === id);
   edit.value = ele.text;
   currentUser = ele;
 }
 
 function EditTodo() {
   if (event.target.id === "EditButton") {
-    Todo = Todo.map((el) => {
+    let todos = getTodo().map((el) => {
       if (el.id === currentUser.id) {
         return {
           ...el,
@@ -144,10 +144,14 @@ function EditTodo() {
       }
       return el;
     });
+    setTodo(todos);
+    document.getElementById("editContainer").style = "display:none";
+    todos.forEach((el) => {
+      const domNode = getDomNode(el.id);
+      domNode.parentNode.removeChild(domNode);
+      renderTodo(el);
+    });
   }
-  localStorage.setItem("todo", JSON.stringify(Todo));
-  document.getElementById("editContainer").style = "display:none";
-  window.location.reload();
 }
 document
   .getElementById("EditButton")
@@ -158,25 +162,27 @@ let search = document.querySelector("#search");
 // search Todo by text
 search.addEventListener("input", function () {
   getTodo().forEach((el) => {
-    const isVisible = el.text.toLowerCase().includes(search.value.toLowerCase())
-    const domNode=getDomNode(el.id);
-    domNode.style.display = isVisible ? 'block' :'none'
-      });
+    const isVisible = el.text
+      .toLowerCase()
+      .includes(search.value.toLowerCase());
+    const domNode = getDomNode(el.id);
+    domNode.style.display = isVisible ? "block" : "none";
+  });
 });
 
-const getDomNode = (id)=>{
-      return document.getElementById('todo_'+id);
-}
+const getDomNode = (id) => {
+  return document.getElementById("todo_" + id);
+};
 
-const reBucketTodos = ()=>{
+const reBucketTodos = () => {
   const todos = getTodo();
-  todos.forEach(item=>{
-    const domNode=getDomNode(item.id);
-    domNode.parentNode.removeChild(domNode)
-    if(item.isDone){
-      container.appendChild(domNode)
-    }else{
-      ls.appendChild(domNode)
+  todos.forEach((item) => {
+    const domNode = getDomNode(item.id);
+    domNode.parentNode.removeChild(domNode);
+    if (!item.isDone) {
+      container.appendChild(domNode);
+    } else {
+      ls.appendChild(domNode);
     }
-  })
-}
+  });
+};
