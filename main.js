@@ -6,17 +6,25 @@ let ls = document.getElementById("containerCompleted");
 
 let Todo;
 
-function getStore() {
-  if (localStorage.getItem("todo") !== null) {
-    Todo = JSON.parse(localStorage.getItem("todo"));
-  } else {
-    Todo = [];
-  }
+const storageKey = 'todo';
+
+const getTodo = ()=>{
+  console.log(localStorage.getItem(storageKey))
+return JSON.parse(localStorage.getItem(storageKey)) || []
 }
 
-document.addEventListener("DOMContentLoaded", getStore());
+const setTodo = (arr)=>{
+  localStorage.setItem(storageKey, JSON.stringify(arr))
+}
+if (document.readyState === "complete"
+     || document.readyState === "loaded"
+     || document.readyState === "interactive") {
+     renderAllTodo()
+}else{
+  document.addEventListener("DOMContentLoaded", renderAllTodo);
+}
 
-document.addEventListener("DOMContentLoaded", renderAllTodo);
+
 
 //Adding Todo
 function AddTodo(e) {
@@ -29,14 +37,15 @@ function AddTodo(e) {
     text: value,
     isDone: false,
   };
-  Todo.push(objUser);
+  const todos = getTodo();
+  todos.push(objUser);
   renderTodo(objUser);
   input.value = "";
-  localStorage.setItem("todo", JSON.stringify(Todo));
+  setTodo(todos);
 }
 
 function renderAllTodo() {
-  Todo.forEach((el) => {
+  getTodo().forEach((el) => {
     renderTodo(el);
   });
 }
@@ -51,8 +60,8 @@ function renderTodo(obj) {
 function TodoListUI(el) {
   let fragement = document.createDocumentFragment();
   const p = document.createElement("p");
-  if (el.isDone !== true) {
-    p.innerHTML = el.text;
+  p.id =  'todo_'+el.id
+  p.innerHTML = el.text;
     const span = document.createElement("span");
     span.innerHTML = "X";
     span.className = "deleteSpan";
@@ -74,31 +83,10 @@ function TodoListUI(el) {
     p.appendChild(btn);
     p.appendChild(btnComplete);
     fragement.appendChild(p);
+  if (el.isDone !== true) {
     container.appendChild(fragement);
   } else {
-    let ListFragment = document.createDocumentFragment();
-    p.innerHTML = el.text;
-    const span = document.createElement("span");
-    span.innerHTML = "X";
-    span.className = "deleteSpan";
-    span.setAttribute("data-id", el.id);
-    span.style = "margin-left:50px; cursor:pointer";
-    const btn = document.createElement("button");
-    btn.innerHTML = "Edit";
-    btn.style = "margin-left:50px; cursor:pointer";
-    btn.onclick = (e) => update(e);
-    btn.setAttribute("data-id", el.id);
-    btn.className = "edit-todo";
-    const btnComplete = document.createElement("button");
-    btnComplete.innerHTML = "completed";
-    btnComplete.id = "completed";
-    btnComplete.setAttribute("data-id", el.id);
-    btnComplete.onclick = (e) => isCompleted(e);
-    p.appendChild(span);
-    p.appendChild(btn);
-    p.appendChild(btnComplete);
-    ListFragment.appendChild(p);
-    ls.appendChild(ListFragment);
+    ls.appendChild(fragement);
   }
 }
 document
@@ -109,18 +97,17 @@ document
 function removeTodo(e) {
   let { id } = e.target.dataset;
   if (e.target.classList.contains("deleteSpan")) {
-    Todo = Todo.filter((el) => el.id.toString() !== id);
-    localStorage.setItem("todo", JSON.stringify(Todo));
+    const todos = getTodo().filter((el) => el.id.toString() !== id);
+    setTodo(todos)
     e.target.closest("p").remove();
   }
 }
 
 //mutating state
 function isCompleted(e) {
-  // container.innerHTML = "";
   let { id } = e.target.dataset;
   if (e.target.id === "completed") {
-    Todo = Todo.map((el) => {
+    const todos = getTodo().map((el) => {
       if (el.id.toString() === id) {
         return {
           ...el,
@@ -129,16 +116,15 @@ function isCompleted(e) {
       }
       return el;
     });
-  }
-  localStorage.setItem("todo", JSON.stringify(Todo));
-  if (e.target.id === "completed") {
-    window.location.reload();
+    setTodo(todos)
+    reBucketTodos()
   }
 }
 
 //update Todo
 let edit = document.getElementById("editTodoValue");
 let currentUser = {};
+
 function update(e) {
   document.getElementById("editContainer").style = "display:block";
   let { id } = e.target.dataset;
@@ -171,14 +157,26 @@ let search = document.querySelector("#search");
 
 // search Todo by text
 search.addEventListener("input", function () {
-  let filterTodo = Todo.filter((el) =>
-    el.text.toLowerCase().includes(search.value.toLowerCase())
-  );
-  Todo = filterTodo;
-  container.innerHTML = "";
-  ls.innerHTML = "";
-  Todo.forEach((el) => {
-    renderTodo(el);
-  });
-  getStore();
+  getTodo().forEach((el) => {
+    const isVisible = el.text.toLowerCase().includes(search.value.toLowerCase())
+    const domNode=getDomNode(el.id);
+    domNode.style.display = isVisible ? 'block' :'none'
+      });
 });
+
+const getDomNode = (id)=>{
+      return document.getElementById('todo_'+id);
+}
+
+const reBucketTodos = ()=>{
+  const todos = getTodo();
+  todos.forEach(item=>{
+    const domNode=getDomNode(item.id);
+    domNode.parentNode.removeChild(domNode)
+    if(item.isDone){
+      container.appendChild(domNode)
+    }else{
+      ls.appendChild(domNode)
+    }
+  })
+}
