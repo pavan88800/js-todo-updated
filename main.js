@@ -3,7 +3,9 @@ let button = document.getElementById("AddTodo");
 let container = document.getElementById("container");
 let ls = document.getElementById("containerCompleted");
 (() => input.focus())();
+
 let Todo;
+
 function getStore() {
   if (localStorage.getItem("todo") !== null) {
     Todo = JSON.parse(localStorage.getItem("todo"));
@@ -11,6 +13,11 @@ function getStore() {
     Todo = [];
   }
 }
+
+document.addEventListener("DOMContentLoaded", getStore());
+
+document.addEventListener("DOMContentLoaded", renderAllTodo);
+
 //Adding Todo
 function AddTodo(e) {
   e.preventDefault();
@@ -34,8 +41,6 @@ function renderAllTodo() {
   });
 }
 button.addEventListener("click", (e) => AddTodo(e));
-document.addEventListener("DOMContentLoaded", getStore());
-document.body.addEventListener("onload", renderAllTodo());
 
 let completed = document.getElementById("completed");
 //Rendering Todo
@@ -44,6 +49,7 @@ function renderTodo(obj) {
 }
 
 function TodoListUI(el) {
+  let fragement = document.createDocumentFragment();
   const p = document.createElement("p");
   if (el.isDone !== true) {
     p.innerHTML = el.text;
@@ -67,9 +73,10 @@ function TodoListUI(el) {
     p.appendChild(span);
     p.appendChild(btn);
     p.appendChild(btnComplete);
-    container.appendChild(p);
+    fragement.appendChild(p);
+    container.appendChild(fragement);
   } else {
-    ls.appendChild(p);
+    let ListFragment = document.createDocumentFragment();
     p.innerHTML = el.text;
     const span = document.createElement("span");
     span.innerHTML = "X";
@@ -90,10 +97,10 @@ function TodoListUI(el) {
     p.appendChild(span);
     p.appendChild(btn);
     p.appendChild(btnComplete);
-    ls.appendChild(p);
+    ListFragment.appendChild(p);
+    ls.appendChild(ListFragment);
   }
 }
-
 document
   .getElementById("containerCompleted")
   .addEventListener("click", (e) => removeTodo(e));
@@ -133,7 +140,6 @@ function isCompleted(e) {
 let edit = document.getElementById("editTodoValue");
 let currentUser = {};
 function update(e) {
-  console.log(e.target);
   document.getElementById("editContainer").style = "display:block";
   let { id } = e.target.dataset;
   let ele = Todo.find((el) => el.id.toString() === id);
@@ -143,7 +149,6 @@ function update(e) {
 
 function EditTodo() {
   if (event.target.id === "EditButton") {
-    console.log(edit.value);
     Todo = Todo.map((el) => {
       if (el.id === currentUser.id) {
         return {
@@ -170,6 +175,10 @@ search.addEventListener("input", function () {
     el.text.toLowerCase().includes(search.value.toLowerCase())
   );
   Todo = filterTodo;
-  renderTodo();
+  container.innerHTML = "";
+  ls.innerHTML = "";
+  Todo.forEach((el) => {
+    renderTodo(el);
+  });
   getStore();
 });
